@@ -95,19 +95,19 @@
 		In terms of rasterization pipeline changes, we modified the rasterization stage to iterate over multiple sample points within a pixel instead of a single center sample, added a larger sample buffer data structure, and added a final resolve step that downsamples the sample buffer into the framebuffer.
 		
 		<div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 10px;">
-		<figure style="text-align: center; margin: 0;">
+		<figure style="text-align: center; margin: 0; flex: 1;">
 			<img src="task2pic1.png" alt="task2pic1" style="width: 100%; display: block; margin: 0 auto;"/>
 			<figcaption>Sampling rate: 1</figcaption>
 		</figure>
-		<figure style="text-align: center; margin: 0;">
+		<figure style="text-align: center; margin: 0; flex: 1;">
 			<img src="task2pic4.png" alt="task2pic4" style="width: 100%; display: block; margin: 0 auto;"/>
 			<figcaption>Sampling rate: 4</figcaption>
 		</figure>
-		<figure style="text-align: center; margin: 0;">
+		<figure style="text-align: center; margin: 0; flex: 1;">
 			<img src="task2pic16.png" alt="task2pic16" style="width: 100%; display: block; margin: 0 auto;"/>
 			<figcaption>Sampling rate: 16</figcaption>
 		</figure>
-		</div>
+	</div>
 
 
 		As sampling rate increases, edges look significantly smoother and the triangle tip looks less jagged. This occurs because higher sampling rates capture partial pixel coverage more accurately, reducing aliasing artifacts along sharp geometric edges by introducing intermediate pixel values.
