@@ -94,20 +94,21 @@
 		Supersampling is useful because it reduces aliasing artifacts, especially along edges. With only one sample at the pixel center, a pixel is treated as either fully inside or fully outside a triangle, which produces jaggies. By taking multiple samples per pixel, we approximate the fraction of the pixel covered by the triangle. Pixels along edges take on an intermediate color, which creates smoother transitions along boundaries.
 		In terms of rasterization pipeline changes, we modified the rasterization stage to iterate over multiple sample points within a pixel instead of a single center sample, added a larger sample buffer data structure, and added a final resolve step that downsamples the sample buffer into the framebuffer.
 		
-		<div style="display: flex; flex-direction: row; align-items: center;">
-			<figure>
-				<img src="task2pic1.png" alt="task2pic1" style="width:28%" padding="5px"/>
-				<figcaption>Sampling rate: 1</figcaption>
-			</figure>
-			<figure>
-				<img src="task2pic4.png" alt="task2pic4" style="width:28%" padding="5px"/>
-				<figcaption>Sampling rate: 4</figcaption>
-			</figure>
-			<figure>
-				<img src="task2pic16.png" alt="task2pic16" style="width:28%" padding="5px"/>
-				<figcaption>Sampling rate: 16</figcaption>
-			</figure>
+		<div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 10px;">
+		<figure style="text-align: center; margin: 0;">
+			<img src="task2pic1.png" alt="task2pic1" style="width: 100%; display: block; margin: 0 auto;"/>
+			<figcaption>Sampling rate: 1</figcaption>
+		</figure>
+		<figure style="text-align: center; margin: 0;">
+			<img src="task2pic4.png" alt="task2pic4" style="width: 100%; display: block; margin: 0 auto;"/>
+			<figcaption>Sampling rate: 4</figcaption>
+		</figure>
+		<figure style="text-align: center; margin: 0;">
+			<img src="task2pic16.png" alt="task2pic16" style="width: 100%; display: block; margin: 0 auto;"/>
+			<figcaption>Sampling rate: 16</figcaption>
+		</figure>
 		</div>
+
 
 		As sampling rate increases, edges look significantly smoother and the triangle tip looks less jagged. This occurs because higher sampling rates capture partial pixel coverage more accurately, reducing aliasing artifacts along sharp geometric edges by introducing intermediate pixel values.
 
