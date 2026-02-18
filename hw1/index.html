@@ -51,9 +51,12 @@
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		1. To rasterize triangles, we first find the coordinates of the corners of the bounding box of our triangle, ensuring that these corner coordinates fall within our viewport. For every pixel in that bounding box, we sample the center of that pixel. We determine whether the sample point lies inside the triangle using the three line tests and line equations shown in lecture 2. If the point is inside or on a boundary/edge of the triangle, then we fill that pixel in with the given color.
-		2. Our algorithm is no worse than one that checks each sample within the bounding box of the triangle, since that is exactly what our algorithm does.
-		3. The following is a screenshot of basic/test4.svg.
+
+		<ol>
+			<li>To rasterize triangles, we first found the coordinates of the corners of the bounding box of our triangle, ensuring that these corner coordinates fall within our viewport. For every pixel in that bounding box, we sample the center of that pixel. We determined whether the sample point lies inside the triangle using the three line tests and line equations shown in lecture 2. If the point is inside or on a boundary/edge of the triangle, then we filled that pixel in with the given color.</li>
+			<li>Our algorithm is no worse than one that checks each sample within the bounding box of the triangle, since that is exactly what our algorithm does.</li>
+			<li>The following is a screenshot of basic/test4.svg.</li>
+		</ol>
 		<figure>
 			<img src="task1ss.png" alt="task1ss" style="width:50%"/>
 		</figure>
@@ -85,7 +88,28 @@
 		</div> -->
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+		To implement supersampling, we modified the rasterizer to keep track of a separate sample buffer that stores multiple color samples per pixel instead of a single color. The size of this buffer scales linearly with the sampling rate. Conceptually, each pixel is divided into a grid of subpixels, and each subpixel stores its own color value.
+		During rasterization, instead of only looking at the pixel center, we loop over all subsample locations inside each pixel. For each sample point within the pixel, we perform the standard inside-triangle test and compute its color if it lies inside the triangle. That color is written into the corresponding location in the sample buffer. Finally, we resolve the final framebuffer by averaging the subpixel colors within each pixel and writing that average as the final pixel color.
+		Supersampling is useful because it reduces aliasing artifacts, especially along edges. With only one sample at the pixel center, a pixel is treated as either fully inside or fully outside a triangle, which produces jaggies. By taking multiple samples per pixel, we approximate the fraction of the pixel covered by the triangle. Pixels along edges take on an intermediate color, which creates smoother transitions along boundaries.
+		In terms of rasterization pipeline changes, we modified the rasterization stage to iterate over multiple sample points within a pixel instead of a single center sample, added a larger sample buffer data structure, and added a final resolve step that downsamples the sample buffer into the framebuffer.
+		
+		<div style="display: flex; flex-direction: row; align-items: center;">
+			<figure>
+				<img src="task2pic1.png" alt="task2pic1" style="width:28%" padding="5px"/>
+				<figcaption>Sampling rate: 1</figcaption>
+			</figure>
+			<figure>
+				<img src="task2pic4.png" alt="task2pic4" style="width:28%" padding="5px"/>
+				<figcaption>Sampling rate: 4</figcaption>
+			</figure>
+			<figure>
+				<img src="task2pic16.png" alt="task2pic16" style="width:28%" padding="5px"/>
+				<figcaption>Sampling rate: 16</figcaption>
+			</figure>
+		</div>
+
+		As sampling rate increases, edges look significantly smoother and the triangle tip looks less jagged. This occurs because higher sampling rates capture partial pixel coverage more accurately, reducing aliasing artifacts along sharp geometric edges by introducing intermediate pixel values.
 
 		<h2>Task 3: Transforms</h2>
 		Cubeman is doing the splits! We rotated and translated the rectangles that form Cubeman's legs to make him a gymnast.
@@ -106,10 +130,26 @@
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-		Level sampling is choosing which resolution of a texture to sample from based on how big that texture appears on screen. If a textured triangle is very small or far away, sampling from the full-resolution image causes aliasing and generally looks bad, so we instead sample from a lower-resolution mip level.
-		In our implementation, we estimated how much the UV coordinates change across one pixel using derivatives by sampling at (x+1, y) and (x, y+1). We used that to compute the scale factor and took log base 2 to get the appropriate mip level. 
-		We implemented two methods: picking the nearest mip level and linearly interpolating between two mip levels (trilinear texture filtering).
-
+		<ol>
+			<li>Level sampling is choosing which resolution of a texture to sample from based on how big that texture appears on screen. If a textured triangle is very small or far away, sampling from the full-resolution image causes aliasing and generally looks bad, so we instead sample from a lower-resolution mip level. We precompute the mip maps at each level to speed up render time, even though we sacrifice some memory to store all texture levels.
+			To choose the mip map level, we first estimated how much the uv coordinates change across one pixel by comparing the uv values at (x, y), (x+1, y), and (x, y+1) in barycentric coordinates. We used those distances to compute the scale factor L and took log base 2 to get the appropriate mip level D. 
+			We implemented two methods: picking the nearest mip level by rounding D and linearly interpolating between two mip levels by taking a weighted average, also called trilinear texture filtering.
+			</li>
+			<li>
+				Let's discuss the tradeoffs between speed, memory usage, and antialiasing power between pixel sampling, level sampling, and number of samples per pixel.
+				<ul>
+					<li>
+						<b>Pixel sampling: </b> Nearest pixel sampling is slightly faster than bilinear since it only takes 1 lookup versus 4 lookups + interpolation. Neither requires extra memory. Bilinear sampling generally outputs a smoother and less blocky graphic, and is more helpful in antialiasing when textures are magnified.
+					</li>
+					<li>
+						<b>Level sampling: </b> Level sampling is slightly slower than no mipmapping due to a couple of extra math computations but this is not a significant speed tradeoff. Level sampling requires more memory usage due to the storing of multiple precomputed mip map texture levels. Level sampling has strong antialiasing power, especially when it comes to minified textures. 
+					</li>
+					<li>
+						<b>Number of samples per pixel: </b> The runtime cost of supersampling increases linearly with the number of subsamples we take per pixel. The sample buffer size also grows proportionally with the number of subsamples per pixel, incurring high memory usage. Overall, supersampling has strong antialiasing powers, significantly reducing visual artifacts such as jaggies along geometric edges.
+					</li>
+				</ul>
+			</li>
+		</ol>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
