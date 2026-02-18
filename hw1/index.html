@@ -48,12 +48,32 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+		In this homework, we explored the rasterization pipeline, and built one that is capable of rendering 
+		triangles, transformations, and texture mapping. We first implemented basic triangle rasterization, and used
+		point-in-triangle tests to determine if sample points lie inside or outside the triangle. Then, we built upon
+		this in Task 2 by implementing supersampling for antialiasing. We learned how to eliminate jaggies in our renders
+		and produce a smoother, more realistic looking result. To enable hierarchical transforms, we ventured into implementing 2D
+		transformations (scale, rotate, translate). We then explored barycentric coordinates, allowing us to smoothly interpolate 
+		vertex attributes, like color, across the points inside the triangle and later applied this concept to texture mapping
+		in Task 5, where we applied barycentric interpolation to texture coordinates instead of colors. Ultimately, we were
+		able to complete the texture pipeline with mipmapping and level sampling. 
 
+		<p>This homework disclosed the intricate techniques to displaying graphics on the computer screen, something that 
+			we usually just take advantage of. We were able to interact with and build upon the pipeline from end-to-end, which 
+			was really cool. We thought that it was interesting how each task stacked on top of each other, and how all of them
+			worked together to produce a smoother, more realistic final image.
+		</p>
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		1. To rasterize triangles, we first find the coordinates of the corners of the bounding box of our triangle, ensuring that these corner coordinates fall within our viewport. For every pixel in that bounding box, we sample the center of that pixel. We determine whether the sample point lies inside the triangle using the three line tests and line equations shown in lecture 2. If the point is inside or on a boundary/edge of the triangle, then we fill that pixel in with the given color.
-		2. Our algorithm is no worse than one that checks each sample within the bounding box of the triangle, since that is exactly what our algorithm does.
-		3. The following is a screenshot of basic/test4.svg.
+		<p>To rasterize triangles, we first find the coordinates of the corners of the 
+			bounding box of our triangle, ensuring that these corner coordinates 
+			fall within our viewport. For every pixel in that bounding box, we sample the
+			 center of that pixel. We determine whether the sample point lies inside the 
+			 triangle using the three line tests and line equations shown in lecture 2. 
+			 If the point is inside or on a boundary/edge of the triangle, then we fill that 
+			 pixel in with the given color.</p>
+		<p>Our algorithm is no worse than one that checks each sample within the bounding 
+		box of the triangle, since that is exactly what our algorithm does.</p>
+		<p>The following is a screenshot of basic/test4.svg.</p>
 		<figure>
 			<img src="task1ss.png" alt="task1ss" style="width:50%"/>
 		</figure>
@@ -124,7 +144,63 @@
 		</figure>
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Pixel Sampling is the process of 
+		Pixel Sampling is the process of determining what color a pixel should be given using 
+		a texture image, including when the sample point doesn't land exactly on a texel center.
+
+		<p>In our implementation, we first follow a similar structure for rasterizing triangles to ensure
+			that a given point is inside the triangle. Then, we compute the (u, v) texture coordinates for the given point
+			using barycentric interpolation. This is similar to what we did when interpolating color in Task 4,
+			but instead of interpolating color, we are interpolating the texture coordinates for this task. Because
+			this mapped pixel usually does not land perfectly on a texel in the texture map, we need ways
+			to sample the texture at arbitrary positions. 
+		</p>
+
+		<p><b>Nearest neighbor sampling: </b>this method of sampling simply rounds to the closest 
+			texel. We convert the continuous (u, v) coordinate to discrete texel indices 
+			by multiplying by the texture dimensions and rounding down.</p>
+
+		<p><b>Bilinear sampling: </b>this method of sampling considers the 
+			four texels surrounding the sample point and blends them based 
+			on the distance of the sample point from each texel center. We first interpolate 
+			horizontally between the two top texels and the two bottom texels, then interpolate vertically 
+			between those results using a total of three lerps.
+		</p>
+
+				<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="nearest_default_tex.png" width="400px"/>
+				  <figcaption>Nearest on 1x</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="nearest_16_tex.png" width="400px"/>
+				  <figcaption>Nearest on 16x</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bilinear_default_tex.png" width="400px"/>
+				  <figcaption>Bilinear on 1x</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bilinear_16_tex.png" width="400px"/>
+				  <figcaption>Bilinear on 16x</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>We can see that when sampling at 1 sample per pixel,
+			nearest neighbor sampling produces some aliasing in the windows
+			of the campanile. There appears to be darker spots underneath the window
+			whereas there are less of these spots and an overall more blurred appearance when using bilinear sampling at the same rate.
+			When sampling at 16 samples per pixel, however, the results are pretty
+			similar. Both methods of sampling have reduced or entirely erased aliasing.
+			In general, there might be a larger difference between the two sampling methods if the texture 
+    		is being magnified, since bilinear more smoothly interpolates between texels 
+    		while nearest tends to produce more blocky results.
+		</p>
 
 		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
 		Level sampling is choosing which resolution of a texture to sample from based on how big that texture appears on screen. If a textured triangle is very small or far away, sampling from the full-resolution image causes aliasing and generally looks bad, so we instead sample from a lower-resolution mip level.
