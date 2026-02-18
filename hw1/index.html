@@ -28,7 +28,7 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Spring 2026 Homework 1 Write-Up</h1>
-		<div style="text-align: center;">Names: Jessica Ng</div>
+		<div style="text-align: center;">Names: Jessica Ng, Carolann Dong</div>
 
 		<br>
 
@@ -87,10 +87,31 @@
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		Barycentric coordinates are when we describe a point's position 
+		inside a triangle as a weighted combination of the three vertices of 
+		that triangle. Each point can be represented by 3 coordinates, one for 
+		each vertex, and the calculated weights essentially tell us "how much" of 
+		that vertex influences the point. 
+
+		<figure>
+			<img src="rgb_triangle.png" alt="rgb" style="width:50%"/>
+		</figure>
+
+		For example, if &alpha; corresponds to the red vertex, then a point 
+		closer to the red vertex will have a higher &alpha; value (closer to 1.0), 
+		while &beta; and &gamma; will be smaller (approaching 0.0). At the red vertex 
+		itself, &alpha; = 1 and &beta; = &gamma; = 0. We then use these values to calculate
+		the final color of that point.Therefore, a point closer to the red vertex 
+		would be colored more red than the other two colors, and vice versa for any 
+		of the other colors. 
+
+		<p>The result of running svg/basic/test7.svg is:</p>
+		<figure>
+			<img src="color_wheel.png" alt="color_wheel" style="width:50%"/>
+		</figure>
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		Pixel Sampling is the process of 
 
 		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
