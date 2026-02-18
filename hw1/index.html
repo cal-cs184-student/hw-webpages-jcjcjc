@@ -106,10 +106,10 @@
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
 
-		To implement supersampling, we modified the rasterizer to keep track of a separate sample buffer that stores multiple color samples per pixel instead of a single color. The size of this buffer scales linearly with the sampling rate. Conceptually, each pixel is divided into a grid of subpixels, and each subpixel stores its own color value.
+		<p>To implement supersampling, we modified the rasterizer to keep track of a separate sample buffer that stores multiple color samples per pixel instead of a single color. The size of this buffer scales linearly with the sampling rate. Conceptually, each pixel is divided into a grid of subpixels, and each subpixel stores its own color value.
 		During rasterization, instead of only looking at the pixel center, we loop over all subsample locations inside each pixel. For each sample point within the pixel, we perform the standard inside-triangle test and compute its color if it lies inside the triangle. That color is written into the corresponding location in the sample buffer. Finally, we resolve the final framebuffer by averaging the subpixel colors within each pixel and writing that average as the final pixel color.
 		Supersampling is useful because it reduces aliasing artifacts, especially along edges. With only one sample at the pixel center, a pixel is treated as either fully inside or fully outside a triangle, which produces jaggies. By taking multiple samples per pixel, we approximate the fraction of the pixel covered by the triangle. Pixels along edges take on an intermediate color, which creates smoother transitions along boundaries.
-		In terms of rasterization pipeline changes, we modified the rasterization stage to iterate over multiple sample points within a pixel instead of a single center sample, added a larger sample buffer data structure, and added a final resolve step that downsamples the sample buffer into the framebuffer.
+		In terms of rasterization pipeline changes, we modified the rasterization stage to iterate over multiple sample points within a pixel instead of a single center sample, added a larger sample buffer data structure, and added a final resolve step that downsamples the sample buffer into the framebuffer.</p>
 		
 		<div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 10px;">
 		<figure style="text-align: center; margin: 0; flex: 1;">
@@ -127,7 +127,7 @@
 	</div>
 
 
-		As sampling rate increases, edges look significantly smoother and the triangle tip looks less jagged. This occurs because higher sampling rates capture partial pixel coverage more accurately, reducing aliasing artifacts along sharp geometric edges by introducing intermediate pixel values.
+		<p>As sampling rate increases, edges look significantly smoother and the triangle tip looks less jagged. This occurs because higher sampling rates capture partial pixel coverage more accurately, reducing aliasing artifacts along sharp geometric edges by introducing intermediate pixel values.</p>
 
 		<h2>Task 3: Transforms</h2>
 		Cubeman is doing the splits! We rotated and translated the rectangles that form Cubeman's legs to make him a gymnast.
