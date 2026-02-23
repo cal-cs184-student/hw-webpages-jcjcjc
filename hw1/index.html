@@ -48,15 +48,32 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+		In this homework, we explored the rasterization pipeline, and built one that is capable of rendering 
+		triangles, transformations, and texture mapping. We first implemented basic triangle rasterization, and used
+		point-in-triangle tests to determine if sample points lie inside or outside the triangle. Then, we built upon
+		this in Task 2 by implementing supersampling for antialiasing. We learned how to eliminate jaggies in our renders
+		and produce a smoother, more realistic looking result. To enable hierarchical transforms, we ventured into implementing 2D
+		transformations (scale, rotate, translate). We then explored barycentric coordinates, allowing us to smoothly interpolate 
+		vertex attributes, like color, across the points inside the triangle and later applied this concept to texture mapping
+		in Task 5, where we applied barycentric interpolation to texture coordinates instead of colors. Ultimately, we were
+		able to complete the texture pipeline with mipmapping and level sampling. 
 
+		<p>This homework disclosed the intricate techniques to displaying graphics on the computer screen, something that 
+			we usually just take advantage of. We were able to interact with and build upon the pipeline from end-to-end, which 
+			was really cool. We thought that it was interesting how each task stacked on top of each other, and how all of them
+			worked together to produce a smoother, more realistic final image.
+		</p>
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-
-		<ol>
-			<li>To rasterize triangles, we first found the coordinates of the corners of the bounding box of our triangle, ensuring that these corner coordinates fall within our viewport. For every pixel in that bounding box, we sample the center of that pixel. We determined whether the sample point lies inside the triangle using the three line tests and line equations shown in lecture 2. If the point is inside or on a boundary/edge of the triangle, then we filled that pixel in with the given color.</li>
-			<li>Our algorithm is no worse than one that checks each sample within the bounding box of the triangle, since that is exactly what our algorithm does.</li>
-			<li>The following is a screenshot of basic/test4.svg.</li>
-		</ol>
+		<p>To rasterize triangles, we first find the coordinates of the corners of the 
+			bounding box of our triangle, ensuring that these corner coordinates 
+			fall within our viewport. For every pixel in that bounding box, we sample the
+			 center of that pixel. We determine whether the sample point lies inside the 
+			 triangle using the three line tests and line equations shown in lecture 2. 
+			 If the point is inside or on a boundary/edge of the triangle, then we fill that 
+			 pixel in with the given color.</p>
+		<p>Our algorithm is no worse than one that checks each sample within the bounding 
+		box of the triangle, since that is exactly what our algorithm does.</p>
+		<p>The following is a screenshot of basic/test4.svg.</p>
 		<figure>
 			<img src="task1ss.png" alt="task1ss" style="width:50%"/>
 		</figure>
@@ -89,10 +106,10 @@
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
 
-		To implement supersampling, we modified the rasterizer to keep track of a separate sample buffer that stores multiple color samples per pixel instead of a single color. The size of this buffer scales linearly with the sampling rate. Conceptually, each pixel is divided into a grid of subpixels, and each subpixel stores its own color value.
+		<p>To implement supersampling, we modified the rasterizer to keep track of a separate sample buffer that stores multiple color samples per pixel instead of a single color. The size of this buffer scales linearly with the sampling rate. Conceptually, each pixel is divided into a grid of subpixels, and each subpixel stores its own color value.
 		During rasterization, instead of only looking at the pixel center, we loop over all subsample locations inside each pixel. For each sample point within the pixel, we perform the standard inside-triangle test and compute its color if it lies inside the triangle. That color is written into the corresponding location in the sample buffer. Finally, we resolve the final framebuffer by averaging the subpixel colors within each pixel and writing that average as the final pixel color.
 		Supersampling is useful because it reduces aliasing artifacts, especially along edges. With only one sample at the pixel center, a pixel is treated as either fully inside or fully outside a triangle, which produces jaggies. By taking multiple samples per pixel, we approximate the fraction of the pixel covered by the triangle. Pixels along edges take on an intermediate color, which creates smoother transitions along boundaries.
-		In terms of rasterization pipeline changes, we modified the rasterization stage to iterate over multiple sample points within a pixel instead of a single center sample, added a larger sample buffer data structure, and added a final resolve step that downsamples the sample buffer into the framebuffer.
+		In terms of rasterization pipeline changes, we modified the rasterization stage to iterate over multiple sample points within a pixel instead of a single center sample, added a larger sample buffer data structure, and added a final resolve step that downsamples the sample buffer into the framebuffer.</p>
 		
 		<div style="display: flex; flex-direction: row; justify-content: center; align-items: flex-start; gap: 10px;">
 		<figure style="text-align: center; margin: 0; flex: 1;">
@@ -110,7 +127,7 @@
 	</div>
 
 
-		As sampling rate increases, edges look significantly smoother and the triangle tip looks less jagged. This occurs because higher sampling rates capture partial pixel coverage more accurately, reducing aliasing artifacts along sharp geometric edges by introducing intermediate pixel values.
+		<p>As sampling rate increases, edges look significantly smoother and the triangle tip looks less jagged. This occurs because higher sampling rates capture partial pixel coverage more accurately, reducing aliasing artifacts along sharp geometric edges by introducing intermediate pixel values.</p>
 
 		<h2>Task 3: Transforms</h2>
 		Cubeman is doing the splits! We rotated and translated the rectangles that form Cubeman's legs to make him a gymnast.
@@ -125,10 +142,87 @@
 		To implement this feature, we inserted a rotation transform into the SVG-to-screen matrix stack. To rotate around the scene's center rather than the top left, the logical transformation steps are: translate SVG center to origin, rotate, translate back, convert SVG to NDC, and then convert NDC to screen. In code, the matrix transformation chain is "backwards" since matrix multiplication is carried out from right to left.
 		
 		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		Barycentric coordinates are when we describe a point's position 
+		inside a triangle as a weighted combination of the three vertices of 
+		that triangle. Each point can be represented by 3 coordinates, one for 
+		each vertex, and the calculated weights essentially tell us "how much" of 
+		that vertex influences the point. 
+
+		<figure>
+			<img src="rgb_triangle.png" alt="rgb" style="width:50%"/>
+		</figure>
+
+		For example, if &alpha; corresponds to the red vertex, then a point 
+		closer to the red vertex will have a higher &alpha; value (closer to 1.0), 
+		while &beta; and &gamma; will be smaller (approaching 0.0). At the red vertex 
+		itself, &alpha; = 1 and &beta; = &gamma; = 0. We then use these values to calculate
+		the final color of that point.Therefore, a point closer to the red vertex 
+		would be colored more red than the other two colors, and vice versa for any 
+		of the other colors. 
+
+		<p>The result of running svg/basic/test7.svg is:</p>
+		<figure>
+			<img src="color_wheel.png" alt="color_wheel" style="width:50%"/>
+		</figure>
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		Pixel Sampling is the process of determining what color a pixel should be given using 
+		a texture image, including when the sample point doesn't land exactly on a texel center.
+
+		<p>In our implementation, we first follow a similar structure for rasterizing triangles to ensure
+			that a given point is inside the triangle. Then, we compute the (u, v) texture coordinates for the given point
+			using barycentric interpolation. This is similar to what we did when interpolating color in Task 4,
+			but instead of interpolating color, we are interpolating the texture coordinates for this task. Because
+			this mapped pixel usually does not land perfectly on a texel in the texture map, we need ways
+			to sample the texture at arbitrary positions. 
+		</p>
+
+		<p><b>Nearest neighbor sampling: </b>this method of sampling simply rounds to the closest 
+			texel. We convert the continuous (u, v) coordinate to discrete texel indices 
+			by multiplying by the texture dimensions and rounding down.</p>
+
+		<p><b>Bilinear sampling: </b>this method of sampling considers the 
+			four texels surrounding the sample point and blends them based 
+			on the distance of the sample point from each texel center. We first interpolate 
+			horizontally between the two top texels and the two bottom texels, then interpolate vertically 
+			between those results using a total of three lerps.
+		</p>
+
+				<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="nearest_default_tex.png" width="400px"/>
+				  <figcaption>Nearest on 1x</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="nearest_16_tex.png" width="400px"/>
+				  <figcaption>Nearest on 16x</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bilinear_default_tex.png" width="400px"/>
+				  <figcaption>Bilinear on 1x</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bilinear_16_tex.png" width="400px"/>
+				  <figcaption>Bilinear on 16x</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>We can see that when sampling at 1 sample per pixel,
+			nearest neighbor sampling produces some aliasing in the windows
+			of the campanile. There appears to be darker spots underneath the window
+			whereas there are less of these spots and an overall more blurred appearance when using bilinear sampling at the same rate.
+			When sampling at 16 samples per pixel, however, the results are pretty
+			similar. Both methods of sampling have reduced or entirely erased aliasing.
+			In general, there might be a larger difference between the two sampling methods if the texture 
+    		is being magnified, since bilinear more smoothly interpolates between texels 
+    		while nearest tends to produce more blocky results.
+		</p>
 
 		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
 		<ol>
