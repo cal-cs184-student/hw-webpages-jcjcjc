@@ -28,20 +28,20 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Spring 2025 Homework 2 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<div style="text-align: center;">Names: Jessica Ng, Carolann Dong</div>
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+		Link to webpage: <a href="https://cal-cs184-student.github.io/hw-webpages-jcjcjc/">https://cal-cs184-student.github.io/hw-webpages-jcjcjc/</a>
 
 		<br>
 		
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+		Link to GitHub repository: <a href="https://github.com/cal-cs184-student/hw2-meshedit-jcjcjcjc">https://github.com/cal-cs184-student/hw2-meshedit-jcjcjcjc</a>
 
-		<figure>
+		<!-- <figure>
 			<img src="teapot.png" alt="Teapot" style="width:50%"/>
 			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+		</figure> -->
 
 		<!--
 		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
@@ -53,33 +53,45 @@
 		<h2>Section I: Bezier Curves and Surfaces</h2>
 
 		<h3>Part 1: Bezier curves with 1D de Casteljau subdivision</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+		<p>De Casteljau's algorithm works by repeatedly lerping (linearly interpolating) between pairs of neighboring control points until you are left with one point. Given a parameter t, you take your n control points, lerp each neighboring pair to get n-1 new points, then repeat on those new points, and keep going until you have just one point left. That point falls on the Bezier curve at parameter t. Changing t from 0 to 1 traces out the full curve.</p>
+		<p>For the implementation, evaluateStep does one round of this algorithm. It loops through the input points, lerps each neighboring pair using (1-t)*p[i] + t*p[i+1], and returns the resulting list of intermediate points. To evaluate the full curve you would simply call this method repeatedly until one point remains.</p>
+		<p>Below we can see each step / level of de Casteljau's algorithm, from the original 6 control points down to the final evaluated point that lies on the Bezier curve.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="teapot.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/task1ss1.png" width="350px"/>
+				  <figcaption>Step 1: 6 original control points</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="teapot.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/task1ss2.png" width="350px"/>
+				  <figcaption>Step 2: 5 intermediate points</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task1ss3.png" width="350px"/>
+				  <figcaption>Step 3: 4 intermediate points</figcaption>
 				</td>
 			  </tr>
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="teapot.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/task1ss4.png" width="350px"/>
+				  <figcaption>Step 4: 3 intermediate points</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="teapot.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="images/task1ss5.png" width="350px"/>
+				  <figcaption>Step 5: 2 intermediate points</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task1ss6.png" width="350px"/>
+				  <figcaption>Step 6: 1 point that lies on the curve</figcaption>
 				</td>
 			  </tr>
 			</table>
 		</div>
+		<p>The following displays a slightly different Bezier curve with modified original control points and parameter t>0.5.</p>
+		<figure>
+			<img src="images/task1ss7.png" alt="task1ss7" style="width:50%"/>
+		</figure>
 
 		<h3>Part 2: Bezier surfaces with separable 1D de Casteljau</h3>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
