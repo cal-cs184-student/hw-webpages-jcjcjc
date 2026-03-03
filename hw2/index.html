@@ -48,8 +48,8 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
-
+		We explored geometric modeling through two main topics. In section 1, we implemented de Casteljau's algorithm to evaluate points on Bezier curves and surfaces given a set or grid of control points. In section 2, we worked extensively with triangle meshes, a common representation for 3D models in computer graphics due to their relative ease to render to screen. Using the halfedge data structure to traverse and manipulate mesh topology, we implemented Phong shading for smoother surface shading, edge flips and splits, and loop subdivision to upsample coarse meshes into smoother, higher-resolution ones.
+		
 		<h2>Section I: Bezier Curves and Surfaces</h2>
 
 		<h3>Part 1: Bezier curves with 1D de Casteljau subdivision</h3>
@@ -94,7 +94,11 @@
 		</figure>
 
 		<h3>Part 2: Bezier surfaces with separable 1D de Casteljau</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>De Casteljau's algorithm extends from curves to surfaces by applying the 1D algorithm across both directions. Given a grid of control points, each row of control points define a curve. We can recursively use 1D de Casteljau's algorithm to find a single point on that lies on each curve at parameter u. Doing this for each row gives us a set of control points on a "moving curve" that lie roughly along a column. We can again use 1D de Casteljau's algorithm with parameter v on this set of points to find a final surface point that lies on the Bezier at (u, v).</p>
+		<p>In terms of code, we have a method <b>evaluateStep</b> that computes a single step of de Casteljau's algorithm for a set of 3D points and parameter t by lerping adjacent points together. The method <b>evaluate1D</b> recursively calls <b>evaluateStep</b> on a set of 3D points and outputs a single point that lies on the "moving curve". The <b>evaluate</b> method outputs the Bezier surface point by calling <b>evaluate1D</b> on each row of points with parameter u, then calling <b>evaluate1D</b> on our resulting column of control points with parameter v.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<img src="images/section1task2.png" width="600px"/>
+		</div>
 
 		<h2>Section II: Triangle Meshes and Half-Edge Data Structure</h2>
 
@@ -125,10 +129,58 @@
 		</figure>
 
 		<h3>Part 4: Edge flip</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>We implemented the edge flip operation by first drawing out a simple mesh of a pair of triangles and naming each element (vertex, face, edge, halfedge). Then, we drew a diagram of the modified mesh with a flipped edge and named all of the modified elements. Doing this made it easy to reassign pointers to each element in the modified mesh. In terms of implementation, we reassigned every single pointer for every single element, even if doing so was redundant just to ensure that we did not miss any.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/plainTeapot.png" width="500px"/>
+				  <figcaption>Before edge flips</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task4flips.png" width="500px"/>
+				  <figcaption>After edge flips</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>In terms of our debugging journey, we used the provided check_for function to sanity check that the correct number of elements were pointing to a specific element once flipped. Additionally, our edge flip implementation looked correct at first, but we ran into some issues when implementing task 6. We had to go back and cross check that every pointer was consistent with our drawing. </p>
 
 		<h3>Part 5: Edge split</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>We implemented the edge split operation by first drawing out a simple mesh of a pair of triangles and naming each element (vertex, face, edge, halfedge). Then, we drew a diagram of the modified mesh with a split edge and named all of the modified elements. Here is the diagram:</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<img src="images/DRAWINGFORTASK5.jpeg" width="650px"/>
+		</div>
+		<p>Doing this made it easy to reassign pointers to each element in the modified mesh. In terms of implementation, we decided to only reassign pointers that changed since we felt as though we understood the pointer reassignment process well enough from Task 4.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/plainTeapot.png" width="500px"/>
+				  <figcaption>Before edge splits</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task5splits.png" width="500px"/>
+				  <figcaption>After edge splits</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/plainTeapot.png" width="500px"/>
+				  <figcaption>Before edge flips and splits</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task5flipsAndSplits.png" width="500px"/>
+				  <figcaption>After edge flips and splits</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>In terms of our debugging journey, our implementation looked correct at first, but we ran into some issues when implementing task 6. To debug, we went back to our diagram and carefully ensured that every pointer was consistent with our drawing. Additionally, we ensured that we were setting the isNew fields to their appropriate boolean values once we understood their use in Task 6.</p>
 
 		<h3>Part 6: Loop subdivision for mesh upsampling</h3>
 		<p>
