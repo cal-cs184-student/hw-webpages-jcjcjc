@@ -108,21 +108,150 @@
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h3>Part 6: Loop subdivision for mesh upsampling</h3>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>(Optional) Section III: Potential Extra Credit - Art Competition: Model something Creative</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
+		<p>
+			To implement loop subdivision, we followed the advice given on the spec. 
+			<ol>
+			<li>
+				We first computed the new positions of each old vertex in the mesh using the given formula: \((1 - n * u)\) * original_position + u * original_neighbor_position_sum.
+				This formula required us to consider the vertex degree, the sum of positions of all neighboring vertices and the vertex weight itself.
+				We stored this new position at Vertex::newPosition and marked isNew as false.
 			</li>
-		</ul>
+			<li>
+				Then, we computed the new positions of each new vertex at the midpoint of all edges. We did this by using the formula on the spec,
+				which required us to find positions of the vertices of the neighboring triangles: \(3/8 * (A + B) + 1/8 * (C + D)\), where A, B, C and D are positions of vertices in the neighboring triangles.
+				We stored this new position at Edge::newPosition.
+			</li>
+			<li>
+				After that, we used our code from Task 4 to split each original edge. For the new returned vertex, we set its 
+				position to the one stored at Edge::newPosition. Task 4 already marked this vertex as new.
+				Then, we flip the edge if it is new and connecting a old and new vertex.
+			</li>
+			<li>
+				Finally, we are able to update each vertex with its new position.
+			</li>
+			</ol>
+		We ran into some issues when splitting edges, but we realized that we were not marking new edges as new before returning, which made
+		our loop division output some interesting results.
+		</p>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/torus1.png" width="400px"/>
+				  <figcaption>No subdivision</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/torus2.png" width="400px"/>
+				  <figcaption>Loop subdivision 1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/torus3.png" width="400px"/>
+				  <figcaption>Loop subdivision 2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/torus4.png" width="400px"/>
+				  <figcaption>Loop subdivision 3</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			Some more examples:
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task6ico.png" width="400px"/>
+				  <figcaption>No subdivision</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task6ico2.png" width="400px"/>
+				  <figcaption>Loop subdivision 1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task6ico3.png" width="400px"/>
+				  <figcaption>Loop subdivision 2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task6ico4.png" width="400px"/>
+				  <figcaption>Loop subdivision 3</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			We noticed that the corners and edges of the shape become more curved / less sharp because
+			in our algorithm, we end up taking the weighted average of the neighboring vertices
+			when we are creating the new vertices. To preserve some of these sharp edges, we can 
+			presplit them, which introduces more vertices where the sharp edges are, so that 
+			neighboring vertices are closer to each other prior to loop subdivision.
+		</p>
+		<p>
+			When loading dae/cube.dae and performing iterations of loop subdivision, the resulting shape is 
+			noticeably asymmetric, like it is above. This is because there is already asymmetry before
+			loop subdivision. Each face of the cube is split into two triangles by a single edge along the diagonal, 
+			and all those diagonals go in the same direction.
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task6nonsym1.png" width="400px"/>
+				  <figcaption>No subdivision</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task6nonsym2.png" width="400px"/>
+				  <figcaption>Loop subdivision 1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task6nonsym3.png" width="400px"/>
+				  <figcaption>Loop subdivision 2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task6nonsym4.png" width="400px"/>
+				  <figcaption>Loop subdivision 3</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			To make subdivision symmetric, I split the diagonal edge on each of the six cube faces. Splitting a diagonal 
+			edge inserts a new vertex at its midpoint and creates a symmetric "X" pattern of four triangles on each face, so
+			additional subdivision then creates a more symmetric, rounded shape as seen below.
+		</p>
+			</p>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task6sym1.png" width="400px"/>
+				  <figcaption>No subdivision</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task6sym2.png" width="400px"/>
+				  <figcaption>Loop subdivision 1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/task6sym3.png" width="400px"/>
+				  <figcaption>Loop subdivision 2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/task6sym4.png" width="400px"/>
+				  <figcaption>Loop subdivision 3</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
 		</div>
 	</body>
 </html>
