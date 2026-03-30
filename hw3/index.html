@@ -27,19 +27,14 @@
 	</head>
 	<body>
 		<div class="container">
-		<h1>CS184/284A Spring 2025 Homework 3 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<h1>CS184/284A Spring 2026 Homework 3 Write-Up</h1>
+		<div style="text-align: center;">Names: Jessica Ng, Carolann Dong</div>
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+		Link to webpage: <a href="https://cal-cs184-student.github.io/hw-webpages-jcjcjc/hw3/index.html">https://cal-cs184-student.github.io/hw-webpages-jcjcjc/hw3/index.html</a>
+		Link to GitHub repository: <a href="https://github.com/cal-cs184-student/hw3-pathtracer-jctelegraphave">https://github.com/cal-cs184-student/hw3-pathtracer-jctelegraphave</a>
 		
-		<figure>
-			<img src="cornell.png" alt="Cornell Boxes with Bunnies" style="width:70%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
-
 		<!--
 		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
 		-->
@@ -48,40 +43,217 @@
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Part 1: Ray Generation and Scene Intersection</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+		For ray generation, we take the normalized image coordinates and map them onto the camera sensor 
+		in camera space. We do this by linearly interpolating across the sensor plane: the coordinates 
+		are scaled and shifted so that (0, 0) maps to the bottom-left corner of the sensor at 
+		(−tan(hFov/2), −tan(vFov/2), −1) and (1, 1) maps to the top-right corner. This gives us a point 
+		on the sensor at z = −1, which defines the ray direction in camera space. We then transform 
+		this direction to world space by multiplying with the <code>c2w</code> matrix and normalizing. 
+		The ray is created using the camera's world-space position as the origin and this direction, 
+		and we initialize <code>min_t</code> and <code>max_t</code> with <code>nClip</code> and <code>fClip</code> as the spec suggests.	
+		</p>
+		<p>
+			To raytrace a pixel, we first initialized an accumulation vector. Then, we loop <code>ns_aa</code> times, and each iteration we sample a 
+			random offset within the pixel using <code>gridSampler</code>, add it to the pixel's 
+			corner coordinates, and divide by the image dimensions to normalize them. 
+			We pass these normalized coordinates to <code>generate_ray</code>, trace the resulting 
+			ray through the scene, and add the returned radiance to our accumulation vector. 
+			Once the loop finishes, we store the averaged result into <code>sampleBuffer</code>.</p>
+		<p>
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+		<h3>Triangle and Sphere Intersection Algorithms</h3>
+		
+		<p>
+			We use the Möller–Trumbore algorithm for triangle intersection seen in lecture.
+			We set up a linear system from the ray and triangle edges, 
+			then we solve for <code>t</code>, <code>b1</code>, and <code>b2</code> using Cramer's rule. 
+			We ensure that a hit is valid by checking if <code>t</code> is in the ray's <code>[min_t, max_t]</code> 
+			range and the barycentric coordinates to satisfy b1 ≥ 0, b2 ≥ 0, and b1 + b2 ≤ 1. If we find a valid intersection, 
+			we update <code>max_t</code> and interpolate the vertex normals with the barycentric weights to get the shading normal.</p>
+		
+		<p>
+			For spheres, we plug the ray equation into the sphere equation, which produces a 
+			quadratic in <code>t</code>, also seen in lecture. Because a negative discriminant means the ray misses entirely, we 
+			short circuit the calculation there.
+
+			Otherwise we get two roots and then we pick whichever is smaller and still falls in the valid 
+			<code>[min_t, max_t]</code> range. We then update <code>r.max_t</code> and the intersection data accordingly.
+			The surface normal is calculated as the unit vector pointing from the sphere's center to the hit point.</p>
+
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
-				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part1task3:CBempty.png" max_width="100%"/>
+				  <figcaption>Empty</figcaption>
 				</td>
-				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part1task4:CBcoil.png" max_width="100%"/>
+				  <figcaption>Coil</figcaption>
 				</td>
 			  </tr>
 			  <tr>
-				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part1task4:CBgems.png" max_width="100%"/>
+				  <figcaption>Gems</figcaption>
 				</td>
-				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part1task4:CBspheres.png" max_width="100%"/>
+				  <figcaption>Spheres</figcaption>
 				</td>
 			  </tr>
 			</table>
 		</div>
 		
 		<h2>Part 2: Bounding Volume Hierarchy</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			We construct the BVH recursively. At each step, we compute the bounding box of all the 
+			primitives in the current range. If the number of primitives is within <code>max_leaf_size</code>, 
+			we make it a leaf node and return.
+		</p>
+
+		<p>
+			Otherwise, we need to split. We pick the axis with the longest extent on the bounding box 
+			(whichever of X, Y, or Z is the widest) and use the midpoint of the bounding box along that 
+			axis as our split point. We chose the midpoint heuristic because it's relatively simple and 
+			doesn't require iterating over all the primitives to compute. 
+
+			We then partition the primitives in-place using <code>iter_swap</code>, so that 
+			primitives whose centroid falls below the midpoint get swapped to the front, 
+			giving us a <code>mid</code> iterator that divides the range into two groups. 
+			If all primitives happen to land on one side (which would cause infinite recursion), 
+			we just split the list in half. We then recursively build the 
+			left and right children by recursively calling <code>construct_bvh</code> on 
+			<code>[start, mid)</code> for the left child and <code>[mid, end)</code> for the right child.</p>
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 33%">
+				  <img src="images/part2task2:dragon.png" max_width="100%"/>
+				  <figcaption>Dragon.</figcaption>
+				</td>
+				<td style="text-align: center; width: 33%">
+				  <img src="images/part2task2:lucy.png" max_width="100%"/>
+				  <figcaption>Lucy</figcaption>
+				</td>
+				<td style="text-align: center; width: 33%">
+				  <img src="images/part2task2:max.png" max_width="100%"/>
+				  <figcaption>Max</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>
+			Without BVH, rendering is very slow because 
+			every ray has to be tested against every single primitive in the scene. With BVH, we can 
+			skip large groups of primitives whose bounding boxes the ray doesn't hit, bringing the 
+			complexity down. For example, maxplanck went 
+			from 124.7160 seconds without BVH to 0.0612 seconds with BVH. Lucy went from 325.3210 seconds to
+			to 0.0593 seconds, and the dragon went from 307.1177 seconds to 0.0540 seconds.
+			On average, hich shows the BVH is doing its job well, achieving huges speedups.
+		</p>
+
 
 		<h2>Part 3: Direct Illumination</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			<strong>Uniform Hemisphere Sampling:</strong> For hemisphere sampling, 
+			we estimate the light arriving at a hit point by shooting rays in random directions 
+			over the hemisphere. For each sample, we get a random direction from <code>hemisphereSampler</code>, 
+			convert it to world space using o2w, and cast a ray from the hit point in that direction. If the ray hits 
+			something, we check if that object emits light. If it does, we plug everything into the reflection 
+			equation, which uses the BSDF value, the incoming light, the cosine term, and the pdf (which is 1/(2π) for uniform hemisphere sampling). 
+			Here, cosine(theta) is simply just the z direction of our sample because the surface normal is (0, 0, 1), so the 
+			dot product between surface normal and sample is just the sample's z value.
+			After all the samples, we divide by the total count to get our Monte Carlo estimate.
+		</p>
 
+		<p>
+			<strong>Importance Sampling Lights:</strong> Instead of randomly sampling directions and 
+			hoping to hit a light, we loop through each light in the scene and sample directions 
+			directly toward it. For each sample, <code>sample_L</code> gives us the emitted radiance, 
+			the direction to the light, the distance, and the pdf. We first check if the light is 
+			behind the surface (if the local z-component of the direction is negative, we skip it). Then we 
+			cast a shadow ray toward the light, setting <code>max_t</code> to just before the light so we 
+			only detect blockers in between. If nothing is blocking the light, we compute the contribution 
+			using the reflection equation with the pdf from <code>sample_L</code>. For point lights we only 
+			take one sample since they always give the same result, and for area lights we average over <code>ns_area_light</code> samples.
+		</p>
+
+		<p>hemisphere sampling:</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part3task3_good:CBbunny_H_64_32.png" max_width="100%"/>
+				  <figcaption>Bunny</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/CB_spheres_hemisphere.png" max_width="100%"/>
+				  <figcaption>Spheres</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>importance sampling:</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 38%">
+				  <img src="images/part3task4:dragon_64_32.png" max_width="100%"/>
+				  <figcaption>Dragon</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part3task4_good:bunny_64_32.png" max_width="100%"/>
+				  <figcaption>Bunny</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>light ray comparison:</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part3task3_lighting_bunny_l1.png" max_width="100%"/>
+				  <figcaption>Bunny: 1 ray</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part3task3_lighting_bunny_l4.png" max_width="100%"/>
+				  <figcaption>Bunny: 4 rays</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part3task3_lighting_bunny_l16.png" max_width="100%"/>
+				  <figcaption>Bunny: 16 rays</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="images/part3task3_lighting_bunny_l64.png" max_width="100%"/>
+				  <figcaption>Bunny: 64 rays</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>
+			<strong>Different numbers of rays: </strong>With just 1 light ray, the soft shadows are very noisy, as pixels look either fully lit or fully 
+			dark with a lot of grain. At 4 light rays, things start smoothing out but there's still some 
+			noise. At 16 light rays, the shadows look much cleaner with only a bit of noise left. At 64 light rays, 
+			the shadows are nearly smooth. This makes sense because more light samples give a better estimate of how 
+			much of the light source is visible from each point, which is what produces the soft shadow effect.
+		</p>
+
+		<p>
+			<strong>Hemisphere vs. Lighting Sampling:</strong> Both methods converge to a similar result,
+			but the images rendered using hemisphere sampling are a bit grainier than those using importance or
+			lighting sampling. This is because lighting sampling only samples directions toward the lights, 
+			so every sample has a chance of contributing some bit of useful information.
+		</p>
+		
 		<h2>Part 4: Global Illumination</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
