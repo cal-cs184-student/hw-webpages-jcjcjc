@@ -255,15 +255,226 @@
 		</p>
 		
 		<h2>Part 4: Global Illumination</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>To implement the indirect lighting function, we first initialize each camera ray depth to whatever the renderer sets the max_ray_depth parameter to.
+			Inside the indriect lighting function, we first handle the base case of if the ray is 1, then simply return the radiance from one bounce. The one bounce radiance was
+			calculated in earlier parts of this homework, so we just called a function to determine this value. We sample a random bounce direction wi based on the BSDF, and 
+			and also find how likely that direction was (pdf) and the brdf_value of how much the surface scatters light in that direction. We convert wi to world space coordinates, 
+			then create a new ray with a decremented depth. If this new ray intersects with any objects in the scene, we then conduct Russian Roulette to see if we continue bouncing. 
+			We continue with a probability of 0.6 (cpdf), and terminate with a probability of 0.4. If a coin flip with heads probability of 0.6 is heads (or if this is the first indirect bounce 
+			since we always trace at least one indirect bounce regardless of Russian Roulette), then we continue. We calculate the bounce by recursively calling this indirect
+			lighting function for the new ray and new intersection, multiplying by the brdf_value and cosine theta, and dividing by the pdf and cpdf. We add this to the one bounce radiance
+			value and return. If we want unaccumulated bounces, we just return the bounce from the recursive call without the one bounce radiance added. Additionally, to estimate global
+			illumination, we add the radiance from zero bounces and the radiance from the indirect lighting function, which accounts for at least 1 bounce of light.
+		</p>
+
+		<p>Here are some images rendered with global (direct and indirect) illumination, using 1024 samples per pixel.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4images/spheres.png" width="350px"/>
+				  <figcaption>Spheres (global illumination)</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4images/walle.png" width="350px"/>
+				  <figcaption>Wall-e (global illumination)</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4images/dragon.png" width="350px"/>
+				  <figcaption>Dragon (global illumination)</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>Here are rendered views of an image of spheres with only direct illumination and only indirect illumination, using 1024 samples per pixel. Direct illumination calculates light from the first bounce, and indirect calculates light from the second bounce and on, which is why 
+			the light areas of the image on the left look lighter and the dark areas look darker in comparison to the image on the right.
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part4images/onlyDirect1024.png" width="350px"/>
+				  <figcaption>Only direct illumination</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4images/onlyIndirect.png" width="350px"/>
+				  <figcaption>Only indirect illumination</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>The following are renderings of unaccumulated bounces for CBbunny.dae. We render the mth bounce of light with max_ray_depth set to 0, 1, 2, 3, 4, and 5. 
+			For the image that shows the second bounce of light, the scene is much dimmer compared to the first bounce of light. This makes sense because the light rays
+			have already bounced off of 2 surfaces/objects before reaching the camera, thus the light rays are not as intense. Additionally, the shadowed area under the bunny
+			is more illuminated since we are calculating light rays that have bounced off of 2 surfaces and can reach those previously darkened areas.
+			The third bounce image is even more dim since the third bounce hits 1 more additional surface/object than the second bounce, losing even more energy but also further illumating
+			shadowed areas. Indirect lighting contributes to the image by brightening up the darkened
+			shadowed areas, making the scenes look more realistic. This trumps rasterization since rasterization can only handle direct lighting from light sources, but does not 
+			calculate the indirect light rays from multiple bounces.
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/false0.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = false, max_ray_depth=0</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/false1.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = false, max_ray_depth=1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/false2.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = false, max_ray_depth=2</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/false3.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = false, max_ray_depth=3</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/false4.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = false, max_ray_depth=4</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/false5.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = false, max_ray_depth=5</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>The following are renderings of accumulated bounces for CBbunny.dae. We render with max_ray_depth set to 0, 1, 2, 3, 4, and 5. Compared to the unaccumulated bounce renderings, 
+			these scenes are actually realistic since it calculates light from multiple bounces and adds them together. In real life, we would never see a scene with solely the 10th bounce
+			of light, for example. Also, notice how the images for m=2 to m=5 look similar. This suggests that much of the lighting contributions come from the first few bounces since each light ray loses energy at every bounce. Thus, the accumulated bounce images converge quickly.
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true0.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=0</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true1.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true2.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=2</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true3.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=3</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true4.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=4</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true5.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=5</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>The following are renderings of CBbunny.dae with Russian Roulette. We render with max_ray_depth set to 0, 1, 2, 3, 4, and 100.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true0.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=0</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true1.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true2.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=2</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true3.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=3</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true4.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=4</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/true100.png" max_width="100%"/>
+				  <figcaption>isAccumBounces = true, max_ray_depth=100</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>Here are rendered views of an images of spheres with various sample-per-pixel rates (1, 2, 4, 8, 16, 64, and 1024), using 4 light rays. Low sample counts are grainy and noisy 
+			since we only take a few samples per pixel, while high sample counts are cleaner and smoother since we average over a large number of rays, which more closely reflects the true value at that pixel.
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/spheres1.png" max_width="350px"/>
+				  <figcaption>sample-per-pixel rate: 1</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/spheres2.png" max_width="350px"/>
+				  <figcaption>sample-per-pixel rate: 2</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/spheres4.png" max_width="350px"/>
+				  <figcaption>sample-per-pixel rate: 4</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/spheres8.png" max_width="350px"/>
+				  <figcaption>sample-per-pixel rate: 8</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/spheres16.png" max_width="350px"/>
+				  <figcaption>sample-per-pixel rate: 16</figcaption>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/spheres64.png" max_width="350px"/>
+				  <figcaption>sample-per-pixel rate: 64</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part4images/spheres1024.png" max_width="350px"/>
+				  <figcaption>sample-per-pixel rate: 1024</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<h2>Part 5: Adaptive Sampling</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-		<h2>(Optional) Part 6: Extra Credit Opportunities</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<!-- <h2>(Optional) Part 6: Extra Credit Opportunities</h2>
+		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. -->
 		
-		<h2>Additional Notes (please remove)</h2>
+		<!-- <h2>Additional Notes (please remove)</h2>
 		<ul>
 			<li>You can also add code if you'd like as so: <code>code code code</code></li>
 			<li>If you'd like to add math equations, 
@@ -272,7 +483,7 @@
 					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
 				</ul>
 			</li>
-		</ul>
+		</ul> -->
 		</div>
 	</body>
 </html>
