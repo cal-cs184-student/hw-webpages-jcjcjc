@@ -276,12 +276,12 @@
 				  <figcaption>Spheres (global illumination)</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="part4images/walle.png" width="350px"/>
-				  <figcaption>Wall-e (global illumination)</figcaption>
-				</td>
-				<td style="text-align: center;">
 				  <img src="part4images/dragon.png" width="350px"/>
 				  <figcaption>Dragon (global illumination)</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part4images/bench.png" width="350px"/>
+				  <figcaption>Bench (global illumination)</figcaption>
 				</td>
 			  </tr>
 			</table>
@@ -308,7 +308,7 @@
 		<p>The following are renderings of unaccumulated bounces for CBbunny.dae. We render the mth bounce of light with max_ray_depth set to 0, 1, 2, 3, 4, and 5. 
 			For the image that shows the second bounce of light, the scene is much dimmer compared to the first bounce of light. This makes sense because the light rays
 			have already bounced off of 2 surfaces/objects before reaching the camera, thus the light rays are not as intense. Additionally, the shadowed area under the bunny
-			is more illuminated since we are calculating light rays that have bounced off of 2 surfaces and can reach those previously darkened areas.
+			and the ceiling is more illuminated since we are calculating light rays that have bounced off of 2 surfaces and can reach those previously darkened areas.
 			The third bounce image is even more dim since the third bounce hits 1 more additional surface/object than the second bounce, losing even more energy but also further illumating
 			shadowed areas. Indirect lighting contributes to the image by brightening up the darkened
 			shadowed areas, making the scenes look more realistic. This trumps rasterization since rasterization can only handle direct lighting from light sources, but does not 
