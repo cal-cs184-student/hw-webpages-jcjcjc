@@ -256,8 +256,8 @@
 		
 		<h2>Part 4: Global Illumination</h2>
 		<p>To implement the indirect lighting function, we first initialize each camera ray depth to whatever the renderer sets the max_ray_depth parameter to.
-			Inside the indriect lighting function, we first handle the base case of if the ray is 1, then simply return the radiance from one bounce. The one bounce radiance was
-			calculated in earlier parts of this homework, so we just called a function to determine this value. We sample a random bounce direction wi based on the BSDF, and 
+			Inside the indriect lighting function, we first handle the base case of if the ray is 1, then return the radiance from one bounce. The one bounce radiance was
+			calculated in earlier parts of this assignment, so we just call a function to determine this value. We sample a random bounce direction wi based on the BSDF, and 
 			and also find how likely that direction was (pdf) and the brdf_value of how much the surface scatters light in that direction. We convert wi to world space coordinates, 
 			then create a new ray with a decremented depth. If this new ray intersects with any objects in the scene, we then conduct Russian Roulette to see if we continue bouncing. 
 			We continue with a probability of 0.6 (cpdf), and terminate with a probability of 0.4. If a coin flip with heads probability of 0.6 is heads (or if this is the first indirect bounce 
@@ -267,27 +267,27 @@
 			illumination, we add the radiance from zero bounces and the radiance from the indirect lighting function, which accounts for at least 1 bounce of light.
 		</p>
 
-		<p>Here are some images rendered with global (direct and indirect) illumination, using 1024 samples per pixel.</p>
+		<p>Here are some images rendered with <b>global</b> (direct and indirect) illumination, using 1024 samples per pixel.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="part4images/spheres.png" width="350px"/>
+				  <img src="part4images/spheres.png" width="400px"/>
 				  <figcaption>Spheres (global illumination)</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="part4images/dragon.png" width="350px"/>
+				  <img src="part4images/dragon.png" width="400px"/>
 				  <figcaption>Dragon (global illumination)</figcaption>
 				</td>
-				<td style="text-align: center;">
-				  <img src="part4images/bench.png" width="350px"/>
-				  <figcaption>Bench (global illumination)</figcaption>
-				</td>
+				<!-- <td style="text-align: center;">
+				  <img src="part4images/blob.png" width="350px"/>
+				  <figcaption>Blob (global illumination)</figcaption>
+				</td> -->
 			  </tr>
 			</table>
 		</div>
 
-		<p>Here are rendered views of an image of spheres with only direct illumination and only indirect illumination, using 1024 samples per pixel. Direct illumination calculates light from the first bounce, and indirect calculates light from the second bounce and on, which is why 
+		<p>Here are rendered views of an image of spheres with <b>only direct</b> illumination and  <b>only indirect</b> illumination, using 1024 samples per pixel. Direct illumination calculates light from the first bounce, and indirect calculates light from the second bounce and on, which is why 
 			the light areas of the image on the left look lighter and the dark areas look darker in comparison to the image on the right.
 		</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
@@ -305,7 +305,7 @@
 			</table>
 		</div>
 
-		<p>The following are renderings of unaccumulated bounces for CBbunny.dae. We render the mth bounce of light with max_ray_depth set to 0, 1, 2, 3, 4, and 5. 
+		<p>The following are renderings of <b>unaccumulated</b> bounces for CBbunny.dae. We render the mth bounce of light with max_ray_depth set to 0, 1, 2, 3, 4, and 5. 
 			For the image that shows the second bounce of light, the scene is much dimmer compared to the first bounce of light. This makes sense because the light rays
 			have already bounced off of 2 surfaces/objects before reaching the camera, thus the light rays are not as intense. Additionally, the shadowed area under the bunny
 			and the ceiling is more illuminated since we are calculating light rays that have bounced off of 2 surfaces and can reach those previously darkened areas.
@@ -349,7 +349,7 @@
 			</table>
 		</div>
 
-		<p>The following are renderings of accumulated bounces for CBbunny.dae. We render with max_ray_depth set to 0, 1, 2, 3, 4, and 5. Compared to the unaccumulated bounce renderings, 
+		<p>The following are renderings of  <b>accumulated</b>  bounces for CBbunny.dae. We render with max_ray_depth set to 0, 1, 2, 3, 4, and 5. Compared to the unaccumulated bounce renderings, 
 			these scenes are actually realistic since it calculates light from multiple bounces and adds them together. In real life, we would never see a scene with solely the 10th bounce
 			of light, for example. Also, notice how the images for m=2 to m=5 look similar. This suggests that much of the lighting contributions come from the first few bounces since each light ray loses energy at every bounce. Thus, the accumulated bounce images converge quickly.
 		</p>
@@ -388,7 +388,7 @@
 			</table>
 		</div>
 
-		<p>The following are renderings of CBbunny.dae with Russian Roulette. We render with max_ray_depth set to 0, 1, 2, 3, 4, and 100.</p>
+		<p>The following are renderings of CBbunny.dae with <b>Russian Roulette</b>. We render with max_ray_depth set to 0, 1, 2, 3, 4, and 100.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
@@ -424,7 +424,7 @@
 			</table>
 		</div>
 
-		<p>Here are rendered views of an images of spheres with various sample-per-pixel rates (1, 2, 4, 8, 16, 64, and 1024), using 4 light rays. Low sample counts are grainy and noisy 
+		<p>Here are rendered views of an images of spheres with various <b>sample-per-pixel rates</b> (1, 2, 4, 8, 16, 64, and 1024), using 4 light rays. Low sample counts are grainy and noisy 
 			since we only take a few samples per pixel, while high sample counts are cleaner and smoother since we average over a large number of rays, which more closely reflects the true value at that pixel.
 		</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
@@ -469,21 +469,32 @@
 		</div>
 
 		<h2>Part 5: Adaptive Sampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<!-- <h2>(Optional) Part 6: Extra Credit Opportunities</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. -->
-		
-		<!-- <h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul> -->
+		<p>The algorithm to implement adaptive sampling is as follows: as we generate sample rays per an individual pixel, keep track of the sum of sample illuminances (s1) and 
+			sum of sample illuminances squared (s2) at every loop. Every so often, depending on the samplesPerBatch parameter that the renderer sets, check if the pixel has converged. To do this, use s2 an s2 to calculate the mean and variance of the n samples that we've generated so far. 
+			Then, compute I = 1.96 * standard deviation / square root of n. If I <= maxTolerance parameter * mean, then the pixel has converged and we can stop sampling. The effect is that areas with more variance like 
+			object edges and creases require high sampling rates (red) while low variance areas like flat walls need lower sampling rates (blue). 
+		</p>
+		<p>Here are two scenes and their corresponding sample rate images, rendered with 2048 samples per pixel, 1 sample per light ray, and max ray depth of 5.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part5images/bunny.png" max_width="100%"/>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part5images/bunny_rate.png" max_width="100%"/>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center; width: 50%">
+				  <img src="part5images/spheres_part5.png" max_width="100%"/>
+				</td>
+				<td style="text-align: center; width: 50%">
+				  <img src="part5images/spheres_part5_rate.png" max_width="100%"/>
+				</td>
+			  </tr>
+			</table>
+		</div>
 		</div>
 	</body>
 </html>
