@@ -89,7 +89,66 @@
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h2>Part 5: Shaders</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			A shader program is a small piece of code that runs on the GPU to determine how geometry is drawn to the screen. 
+			Because the GPU runs shaders in parallel across thousands of vertices and fragments at once, shaders allow us to 
+			achieve real-time rendering speeds that would be basically impossible on the CPU. A shader program is made up of two stages:
+			 a vertex shader and a fragment shader.The vertex shader runs once per vertex, applying the model and 
+			 view-projection matrices to transform it into screen space, and writes out varyings like world-space position and 
+			 normal that get interpolated across each triangle during rasterization. The fragment shader then runs once per fragment 
+			 using those interpolated values along with uniforms like light position and camera position to compute a final color 
+			 written to out_color. Together, the vertex shader sets up the geometry and per-vertex data, and the fragment shader 
+			 decides what color each pixel should be.
+		</p>
+		<p>
+			The Blinn-Phong shading model approximates how light interacts with a surface by combining three components: 
+			ambient, diffuse, and specular. The ambient component is a constant term representing indirect light bouncing around 
+			the scene, which ensures surfaces facing away from the light are not completely black. The diffuse component models 
+			matte reflection that scatters equally in all directions, which is brightest when the normal points at the light and 
+			falls off with the cosine of the angle between them. The specular component models shiny highlights by computing the 
+			half-vector h between the view direction and light direction, then raising the dot product of the normal and h to a 
+			power p that controls the tightness of the highlight. Higher values of p produce smaller, sharper highlights, making 
+			the surface look glossier. Adding all three components gives a result that contains both the overall shape (through diffuse shading) and the
+			 material's shininess (through specular), while avoiding pitch-black shadows (through ambient).
+		</p>
+		<p>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/sphere_ambient.png" width="400px"/>
+				  <figcaption>Ambient</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/sphere_diffuse.png" width="400px"/>
+				  <figcaption>Diffuse</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/sphere_specular.png" width="400px"/>
+				  <figcaption>Specular</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/sphere_phong.png" width="400px"/>
+				  <figcaption>Phong</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		</p>
+
+		<h4>
+			Custom Texture:
+		</h4>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/texture_custom.png" width="400px"/>
+				  <figcaption>Ambient</figcaption>
+				</td>
+			  </tr>
 
 		<h2>(Optional) Part 6: Extra Credit - Additional cloth simulation features!</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
