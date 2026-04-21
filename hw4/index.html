@@ -28,82 +28,158 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Spring 2025 Homework 4 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<div style="text-align: center;">Names: Jessica Ng, Carolann Dong</div>
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+		Link to webpage: <a href="https://cal-cs184-student.github.io/hw-webpages-jcjcjc/hw4/index.html">https://cal-cs184-student.github.io/hw-webpages-jcjcjc/hw4/index.html</a>
 
 		<br>
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-
-		<figure>
-			<img src="clothsim.png" alt="Cloth draped over sphere" style="width:70%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
-
-		<!--
-		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
-		-->
+		Link to GitHub repository: <a href="https://github.com/cal-cs184-student/hw4-clothsim-telegraphave-jcjcjc">https://github.com/cal-cs184-student/hw4-clothsim-telegraphave-jcjcjc</a>
 
 		<h2>Overview</h2>
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Part 1: Masses and springs</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+		<p>Here is a close-up screenshot of our cloth wireframe, showing the structure of our pointmasses and springs.</p>
+		<figure>
+			<img src="part123images/part1.png" style="width:400px"/>
+			<figcaption>scene/pinned2.json</figcaption>
+		</figure>
+		
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="part123images/part1structbend.png" width="400px"/>
+				  <figcaption>scene/pinned2.json with structural and bending constraints</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="part123images/part1shearing.png" width="400px"/>
+				  <figcaption>scene/pinned2.json with only shearing constraints</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="part123images/part1all.png" width="400px"/>
+				  <figcaption>scene/pinned2.json with all 3 constraints (structural, shearing, and bending)</figcaption>
 				</td>
 			  </tr>
 			</table>
 		</div>
 
 		<h2>Part 2: Simulation via numerical integration</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>We experimented with some parameters of the simulation.</p>
+
+		<h4>Spring constant</h4>
+		<p>With a low ks, the cloth sags and stretches more since the springs are weaker. We see more rippling and wrinkling, and the cloth is generally more "bouncy". With a high ks, the cloth looks much stiffer and tighter. It holds its shape better and does not droop as much. The difference occurs and is most visible at the end of the simulation, when the low ks cloth sags mostly in middle of the cloth between the two pinned corners.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part123images/low_ks.png" height="300px"/>
+				  <figcaption>ks=100 N/m</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part123images/high_ks.png" height="300px"/>
+				  <figcaption>ks=10000 N/m</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<h4>Density</h4>
+		<p>Lower density makes the cloth feel tighter and more lightweight. Higher density causes more sagging and stretching, similar to what low ks looks like. The difference occurs and is most visible at the end of the simulation, when the high density cloth sags mostly in middle of the cloth between the two pinned corners.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part123images/low_density.png" height="300px"/>
+				  <figcaption>density=1 g/cm^2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part123images/high_density.png" height="300px"/>
+				  <figcaption>density=500 g/cm^2</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<h4>Damping</h4>
+		<p>With low damping, the cloth swings and flops around a lot before coming to rest, with lots of wrinkles and movement. It looks as though there is very little air resistance. With high damping, the cloth falls slowly and smoothly as one piece, barely flopping around at all. The difference occurs right when starting the simulation. Low damping causes the cloth to swing back and forth for a long time, while high damping barely lets it swing at all.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part123images/low_damping.png" height="300px"/>
+				  <figcaption>damping=0%</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part123images/high_damping.png" height="300px"/>
+				  <figcaption>damping=1%</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>Here is our cloth from scene/pinned4.json in its final resting state!</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part123images/part2pinned4.png" height="300px"/>
+				  <figcaption>scene/pinned4.json</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part123images/part2shaded.png" height="300px"/>
+				  <figcaption>scene/pinned4.json, shaded</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<h2>Part 3: Handling collisions with other objects</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>Sphere collisions: For each pointmass in the cloth, we check if it is inside the sphere by comparing its distance from the sphere's origin to the radius. If yes, then we compute the tangent point by extending the vector from the origin to the pointmass out to the sphere's surface. We then compute a correction vector from last_position to this tangent point and apply it scaled by some value for friction.</p>
+		<p>Plane collisions: For each pointmass in the cloth, we check if it has crossed the plane by comparing the sign of the dot product of (position - point) and (last_position - point) with the plane normal. If the signs are not the same, it crossed. We find the tangent point by projecting the current position onto the plane. The correction vector from last_position to this offset point (also scaled for friction) is applied.</p>
+		<p>Here is our shaded cloth from scene/sphere.json in its final resting state on the sphere with different spring constant values. With a low ks, the cloth drapes loosely over the sphere, closely mirroring the spherical shape, almost hugging the sphere. With the default ks = 5000, the cloth sits on top, slightly more rigidly. With a high ks, the cloth is very stiff and juts out over sphere rather than draping down.</p>
+		<figure>
+			<img src="part123images/500.png" style="width:500px"/>
+			<figcaption>ks=500 N/m</figcaption>
+		</figure>
+		<figure>
+			<img src="part123images/5000.png" style="width:500px"/>
+			<figcaption>ks=5000 N/m</figcaption>
+		</figure>
+		<figure>
+			<img src="part123images/50000.png" style="width:500px"/>
+			<figcaption>ks=50000 N/m</figcaption>
+		</figure>
 
+		<p>Here is our cloth laying peacefully at rest on a plane!</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="part123images/plane.png" width="400px"/>
+				  <figcaption>wireframe</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part123images/planeshaded.png" width="400px"/>
+				  <figcaption>normal shading</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="part123images/onionring.png" width="400px"/>
+				  <figcaption>added texture</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		
 		<h2>Part 4: Handling self-collisions</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h2>Part 5: Shaders</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-		<h2>(Optional) Part 6: Extra Credit - Additional cloth simulation features!</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-		
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
 		</div>
 	</body>
 </html>
