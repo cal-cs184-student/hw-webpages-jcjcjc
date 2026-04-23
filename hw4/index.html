@@ -39,8 +39,19 @@
 		Link to GitHub repository: <a href="https://github.com/cal-cs184-student/hw4-clothsim-telegraphave-jcjcjc">https://github.com/cal-cs184-student/hw4-clothsim-telegraphave-jcjcjc</a>
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
-
+		<p>
+			We implemented a real-time cloth simulator that models cloth as a grid of point masses connected by springs, 
+			along with a set of GLSL shaders for rendering it. In Parts 1 and 2, we built the grid with structural, 
+			shearing, and bending springs, then used Verlet integration and Provot correction to simulate its motion. 
+			In Parts 3 and 4, we handled collisions with external objects and with the cloth itself, using spatial 
+			hashing to make self-collisions efficient. In Part 5, we wrote GLSL shaders for diffuse, Blinn-Phong, 
+			texture, bump, displacement, and mirror shading to render the cloth with realistic lighting in real time.
+		</p>
+		<p>
+			The most interesting takeaway was seeing how each layer built on the previous ones to produce realistic 
+			cloth. It was also cool to see how parameters like ks and density produced very different results, and how 
+			bump and displacement mapping looked similar on smooth meshes but behaved very differently on coarse ones.
+		</p>
 		<h2>Part 1: Masses and springs</h2>
 		<p>Here is a close-up screenshot of our cloth wireframe, showing the structure of our pointmasses and springs.</p>
 		<figure>
@@ -175,30 +186,156 @@
 		</div>
 		
 		<h2>Part 4: Handling self-collisions</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		<p>
+			To avoid the O(n²) cost of checking every pair of point masses, we implemented spatial hashing. At each simulation step 
+			we call build_spatial_map, which loops through all point masses, hashes each position into a 3D box volume using 
+			hash_position, and inserts the point mass into the corresponding bucket of our hash map. For hash_position, we compute 
+			box dimensions w = 3 * width / num_width_points, h = 3 * height / num_height_points, and t = max(w, h), then truncate each 
+			coordinate of the position to its containing box using fmod, and combine the three truncated coordinates into a single 
+			 key using a linear combination with distinct primes. 
+		</p>
+		<p>
+			Once the map is built, self_collide looks up the bucket for a given point mass's hash and iterates through the candidates.
+			For each candidate (skipping the point mass itself), we check if the distance is less than 2 * thickness, and if so, 
+			we compute a correction vector that would push the point mass to exactly 2 * thickness away from the candidate.
+			 We accumulate all such correction vectors, average them by the number of collisions, and divide by simulation_steps 
+			 before applying to the point mass's position. In simulate, we call build_spatial_map followed by self_collide on 
+			 every point mass each timestep, so that self-collisions are resolved using updated positions.
+
+		</p>
+		<p>
+			<b>Cloth simulation w/ density 15 and 5000ks </b>
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/beg_15_5000.png" width="400px"/>
+				  <figcaption>Beginning</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/mid_15_5000.png" width="400px"/>
+				  <figcaption>Middle</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/end_15_5000.png" width="400px"/>
+				  <figcaption>End</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			<b>Changing Density: Cloth simulation w/ density 5 and 5000ks </b>
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/beg_5_5000.png" width="400px"/>
+				  <figcaption>Beginning</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/mid_5_5000.png" width="400px"/>
+				  <figcaption>Middle</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/end_5_5000.png" width="400px"/>
+				  <figcaption>End</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			<b>Changing Density: Cloth simulation w/ density 50 and 5000ks </b>
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/beg_50_5000.png" width="400px"/>
+				  <figcaption>Beginning</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/mid_50_5000.png" width="400px"/>
+				  <figcaption>Middle</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/end_50_5000.png" width="400px"/>
+				  <figcaption>End</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			Lower density results in the amount of wrinkles decreasing in the cloth, and the folds are more broad and spread apart.
+			Higher density produces more wrinkles that are smaller and closer to each other.
+		</p>
+		<p>
+			<b>Changing Spring Constant: Cloth simulation w/ density 15 and 500ks </b>
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/beg_15_500.png" width="400px"/>
+				  <figcaption>Beginning</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/mid_15_500.png" width="400px"/>
+				  <figcaption>Middle</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/end_15_500.png" width="400px"/>
+				  <figcaption>End</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			<b>Changing Spring Constant: Cloth simulation w/ density 15 and 50000ks </b>
+		</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/beg_15_50000.png" width="400px"/>
+				  <figcaption>Beginning</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/mid_15_50000.png" width="400px"/>
+				  <figcaption>Middle</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/end_15_50000.png" width="400px"/>
+				  <figcaption>End</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			As ks decreases, the cloth stretches more as it falls and produces softer, rounded folds that pile up heavily on the ground. 
+			As ks increases, the springs resist stretching more strongly, so the cloth holds its shape better and produces fewer, sharper folds that 
+			spread across the whole cloth rather than bunching up.
+		</p>
 
 		<h2>Part 5: Shaders</h2>
 		<p>
 			A shader program is a small piece of code that runs on the GPU to determine how geometry is drawn to the screen. 
-			Because the GPU runs shaders in parallel across thousands of vertices and fragments at once, shaders allow us to 
-			achieve real-time rendering speeds that would be basically impossible on the CPU. A shader program is made up of two stages:
-			 a vertex shader and a fragment shader.The vertex shader runs once per vertex, applying the model and 
-			 view-projection matrices to transform it into screen space, and writes out varyings like world-space position and 
-			 normal that get interpolated across each triangle during rasterization. The fragment shader then runs once per fragment 
-			 using those interpolated values along with uniforms like light position and camera position to compute a final color 
-			 written to out_color. Together, the vertex shader sets up the geometry and per-vertex data, and the fragment shader 
-			 decides what color each pixel should be.
+			Because the GPU runs shaders in parallel, shaders achieve real-time rendering speeds that would be impossible on the CPU. 
+			A shader program is made up of a vertex shader and a fragment shader. The vertex shader runs once per vertex, applying 
+			transformations to move it into screen space and writing out varyings like world-space position and normal that get 
+			interpolated across each triangle. The fragment shader then runs once per fragment, using those interpolated values 
+			along with uniforms like light position and camera position to compute the final pixel color. Together, the vertex 
+			shader sets up the geometry and the fragment shader decides what color each pixel should be.
 		</p>
 		<p>
-			The Blinn-Phong shading model approximates how light interacts with a surface by combining three components: 
-			ambient, diffuse, and specular. The ambient component is a constant term representing indirect light bouncing around 
-			the scene, which ensures surfaces facing away from the light are not completely black. The diffuse component models 
-			matte reflection that scatters equally in all directions, which is brightest when the normal points at the light and 
-			falls off with the cosine of the angle between them. The specular component models shiny highlights by computing the 
-			half-vector h between the view direction and light direction, then raising the dot product of the normal and h to a 
-			power p that controls the tightness of the highlight. Higher values of p produce smaller, sharper highlights, making 
-			the surface look glossier. Adding all three components gives a result that contains both the overall shape (through diffuse shading) and the
-			 material's shininess (through specular), while avoiding pitch-black shadows (through ambient).
+			The Blinn-Phong shading model approximates lighting by combining three components: ambient, diffuse, and specular. 
+			The ambient term is a constant that ensures surfaces facing away from the light are not completely black. The diffuse 
+			term models matte reflection and is brightest when the normal points at the light, falling off with the cosine of the 
+			angle between them. The specular term models shiny highlights by raising the dot product of the normal and the 
+			half-vector h (between view and light directions) to a power p, where higher p produces smaller, sharper highlights. 
+			Together, the three components capture an object's overall shape (diffuse), shininess (specular), and softly lit 
+			shadows (ambient).
 		</p>
 		<p>
 			<div style="display: flex; flex-direction: column; align-items: center;">
@@ -238,6 +375,95 @@
 				  <figcaption>Ambient</figcaption>
 				</td>
 			  </tr>
+			  </table>
+			</div>
+
+		<h4>
+			Bump Mapping:
+		</h4>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/bump1sphere.png" width="400px"/>
+				  <figcaption>Sphere</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/bump1cloth.png" width="400px"/>
+				  <figcaption>Cloth</figcaption>
+				</td>
+			  </tr>
+			  </table>
+			</div>
+		<h4>
+			Displacement Mapping:
+		</h4>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/displacement_sphere.png" width="400px"/>
+				  <figcaption>Sphere</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/displacement_cloth.png" width="400px"/>
+				  <figcaption>Cloth</figcaption>
+				</td>
+			  </tr>
+			  </table>
+			</div>
+		<p>
+			Comparing these two approaches, bump mapping adds a bumpy, rough texture without really changing the shape
+			of the object, while displacement mapping actually affects the shape of the object. 
+			The  bump mapping only affects lighting, so the silhouette of the object stays smooth even though the surface looks bumpy, 
+			and the displacement mapping actually moves the vertices, so it produces bumpy silhouettes with detail.
+		</p>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/bump_on_16coarse.png" width="400px"/>
+				  <figcaption>16 coarseness: Bump</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/displace_on_16_coarse.png" width="400px"/>
+				  <figcaption>16 coarseness: Displacement</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/bump_on_128_coarse.png" width="400px"/>
+				  <figcaption>128 coarseness: Bump</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/displace_on_128_coarse.png" width="400px"/>
+				  <figcaption>128 coarseness: Displacement</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>
+			On both coarseness values, the bump mapping results kind of look the same. However, for the displacement mapping,
+			on a lower coarseness, the bumps look more chunky and big, and at 128, displacement mapping produces fine-grained bumps 
+			visible along the silhouette.
+		</p>
+		<h4>
+			Mirror:
+		</h4>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="images/mirror_sphere.png" width="400px"/>
+				  <figcaption>Sphere</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="images/mirror_cloth.png" width="400px"/>
+				  <figcaption>Cloth</figcaption>
+				</td>
+			  </tr>
+			  </table>
+			</div>
 
 		</div>
 	</body>
